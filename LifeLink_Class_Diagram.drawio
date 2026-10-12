@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net" modified="2026-10-12T04:30:00.000Z" agent="ChatGPT" version="24.7.17" type="device">
+  <diagram id="diagram1" name="Class Diagram">
+    <mxGraphModel dx="1750" dy="1350" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1750" pageHeight="1350" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="main" value="&lt;b&gt;Main&lt;/b&gt;&lt;br&gt;+ main(args) : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="150" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="console" value="&lt;b&gt;ConsoleUI&lt;/b&gt;&lt;br&gt;- facade : LifeLinkFacade&lt;br&gt;+ run() : void&lt;br&gt;+ showMainPage() : void&lt;br&gt;+ registerDonor() : void&lt;br&gt;+ registerHospital() : void&lt;br&gt;+ postRequest() : void&lt;br&gt;+ findMatches() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="130" width="200" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="facade" value="&lt;b&gt;LifeLinkFacade&lt;/b&gt;&lt;br&gt;&lt;i&gt;Facade&lt;/i&gt;&lt;br&gt; - store : DataStore&lt;br&gt;- engine : MatchingEngine&lt;br&gt;- checker : EligibilityChecker&lt;br&gt;+ registerDonor(...) : Donor&lt;br&gt;+ registerHospital(...) : Hospital&lt;br&gt;+ verifyHospital(...) : void&lt;br&gt;+ postRequest(...) : BloodRequest&lt;br&gt;+ findMatches(requestId) : List" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="300" width="260" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend" value="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;────────────&lt;br&gt;Implemented in current code&lt;br&gt;&lt;br&gt; - - - - - - - -&lt;br&gt;Planned (next steps)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="25" width="220" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="datastore" value="&lt;b&gt;DataStore&lt;/b&gt;&lt;br&gt;&lt;i&gt;Singleton&lt;/i&gt;&lt;br&gt;- instance : DataStore&lt;br&gt;- donors : List&amp;lt;Donor&amp;gt;&lt;br&gt;- hospitals : List&amp;lt;Hospital&amp;gt;&lt;br&gt;- requests : List&amp;lt;BloodRequest&amp;gt;&lt;br&gt;+ DataStore()&lt;br&gt;+ getInstance() : DataStore&lt;br&gt;+ addDonor() : void&lt;br&gt;+ addHospital() : void&lt;br&gt;+ addRequest() : void&lt;br&gt;+ save() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="620" width="240" height="190" as="geometry"/>
+        </mxCell>
+        <mxCell id="matching" value="&lt;b&gt;MatchingEngine&lt;/b&gt;&lt;br&gt;- checker : EligibilityChecker&lt;br&gt;+ findMatching(request) : List&amp;lt;Match&amp;gt;&lt;br&gt;+ donorsToday() : List&amp;lt;Match&amp;gt;&lt;br&gt;+ countCompatible(request, donor) : long" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="330" y="520" width="270" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="geo" value="&lt;b&gt;GeoUtil&lt;/b&gt;&lt;br&gt;+ distanceKm(lat1, lon1,&lt;br&gt; lat2, lon2) : double" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="700" width="190" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="eligibility" value="&lt;b&gt;EligibilityChecker&lt;/b&gt;&lt;br&gt;- minAge : int = 18&lt;br&gt;- maxAge : int = 65&lt;br&gt;- minIntervalDays : int = 90&lt;br&gt;+ isAgeAllowed(dob, today) : boolean&lt;br&gt;+ isEligible(donor, today) : boolean&lt;br&gt;+ isEligible(donor, request) : boolean" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="550" y="700" width="270" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="strategy" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;AlertStrategy&lt;/b&gt;&lt;br&gt;+ execute(request, matches) : List&amp;lt;Alert&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="760" y="390" width="270" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="onebyone" value="&lt;b&gt;OneByOne&lt;/b&gt;&lt;br&gt;+ execute(request, matches) : List&amp;lt;Alert&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="230" width="250" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="simulator" value="&lt;b&gt;Simulator&lt;/b&gt;&lt;br&gt;- seed : long&lt;br&gt;- donorCount : int&lt;br&gt;- responseProbability : double&lt;br&gt;+ runStrategy() : Report&lt;br&gt;+ compareAll() : List&amp;lt;Report&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="800" y="100" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="allatonce" value="&lt;b&gt;AllAtOnce&lt;/b&gt;&lt;br&gt;+ execute(request, matches) : List&amp;lt;Alert&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="230" width="250" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="nearest" value="&lt;b&gt;NearestBatch&lt;/b&gt;&lt;br&gt;- batchSize : int = 10&lt;br&gt;- radiusKm : int = 5&lt;br&gt;+ execute(request, matches) : List&amp;lt;Alert&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="230" width="250" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="alert" value="&lt;b&gt;Alert&lt;/b&gt;&lt;br&gt;- donorId : int&lt;br&gt;- requestId : int&lt;br&gt;- sentAt : LocalDateTime&lt;br&gt;- response : String" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="570" width="220" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="compatibility" value="&lt;b&gt;CompatibilityRules&lt;/b&gt;&lt;br&gt;+ canDonate(donor, patient) : boolean&lt;br&gt;+ compatibleDonorGroups() : List" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="570" width="260" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="bloodrequest" value="&lt;b&gt;BloodRequest&lt;/b&gt;&lt;br&gt;- id : int&lt;br&gt;- hospitalId : int&lt;br&gt;- bloodGroup : BloodGroup&lt;br&gt;- unitsNeeded : int&lt;br&gt;- urgency : Urgency&lt;br&gt;- createdAt, deadline : LocalDateTime&lt;br&gt;- status : String&lt;br&gt;+ isOpen() : boolean&lt;br&gt;+ setStatus() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="330" y="900" width="260" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="donorobj" value="&lt;b&gt;Donor&lt;/b&gt;&lt;br&gt;- id : int&lt;br&gt;- name : String&lt;br&gt;- phone : String&lt;br&gt;- bloodGroup : BloodGroup&lt;br&gt;- dateOfBirth : LocalDate&lt;br&gt;- latitude, longitude : double&lt;br&gt;- lastDonation : LocalDate&lt;br&gt;- available : boolean&lt;br&gt;+ getAge(today) : int&lt;br&gt;+ canDonate() : String&lt;br&gt;+ setAvailable() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="900" width="270" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="hospitalobj" value="&lt;b&gt;Hospital&lt;/b&gt;&lt;br&gt;- id : int&lt;br&gt;- name : String&lt;br&gt;- latitude, longitude : double&lt;br&gt;- verified : boolean&lt;br&gt;+ setVerified() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="900" width="230" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="urgency" value="&lt;b&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;br&gt;Urgency&lt;/b&gt;&lt;br&gt;CRITICAL, URGENT, NORMAL" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="330" y="1130" width="260" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="bloodgroup" value="&lt;b&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;br&gt;BloodGroup&lt;/b&gt;&lt;br&gt;A_POS, A_NEG, B_POS, B_NEG,&lt;br&gt;AB_POS, AB_NEG, O_POS, O_NEG&lt;br&gt;+ label : String&lt;br&gt;+ isRhPositive() : boolean&lt;br&gt;+ fromLabel(label) : BloodGroup" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="1140" width="300" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="main" target="console">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="console" target="facade">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="getInstance()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="facade" target="datastore">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="facade" target="matching">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="facade" target="eligibility">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="matching" target="geo">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="matching" target="eligibility">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="implements" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="onebyone" target="strategy">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="simulator" target="strategy">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" value="implements" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="allatonce" target="strategy">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="implements" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="nearest" target="strategy">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="matching" target="strategy">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="produces" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="strategy" target="alert">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="matching" target="compatibility">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="datastore" target="bloodrequest">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="datastore" target="donorobj">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="datastore" target="hospitalobj">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="alert" target="bloodrequest">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="alert" target="donorobj">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" value="posted by" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="bloodrequest" target="hospitalobj">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="bloodrequest" target="urgency">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="bloodrequest" target="bloodgroup">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" edge="1" parent="1" source="donorobj" target="bloodgroup">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e24" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;dashed=1;" edge="1" parent="1" source="compatibility" target="bloodgroup">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,140 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net" modified="2026-10-12T04:30:00.000Z" agent="ChatGPT" version="24.7.17" type="device">
+  <diagram id="diagram1" name="Use Case Diagram">
+    <mxGraphModel dx="1400" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="sys" value="LifeLink System" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;fontColor=#000000;fontSize=16;fontStyle=1;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="250" y="40" width="900" height="760" as="geometry"/>
+        </mxCell>
+        <mxCell id="donor" value="○&lt;br&gt;│&lt;br&gt;╱│╲&lt;br&gt;│&lt;br&gt;╱ ╲&lt;br&gt;&lt;b&gt;Donor&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontColor=#000000;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="220" width="100" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="hospital" value="○&lt;br&gt;│&lt;br&gt;╱│╲&lt;br&gt;│&lt;br&gt;╱ ╲&lt;br&gt;&lt;b&gt;Hospital&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontColor=#000000;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="570" width="100" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="admin" value="○&lt;br&gt;│&lt;br&gt;╱│╲&lt;br&gt;│&lt;br&gt;╱ ╲&lt;br&gt;&lt;b&gt;Administrator&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontColor=#000000;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="230" width="100" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="registerdonor" value="Register as donor" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="90" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="availability" value="Set availability&lt;br&gt;on / off" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="170" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="receive" value="Receive alert" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="250" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="accept" value="Accept or&lt;br&gt;decline request" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="330" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="reghosp" value="Register hospital" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="420" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="post" value="Post blood request" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="500" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="viewmatch" value="View matched donors&lt;br&gt;and accepted contacts" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="580" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="complete" value="Mark donation&lt;br&gt;completed" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="660" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="escalate" value="Escalate search&lt;br&gt;radius" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="260" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="send" value="Send alerts" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="350" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="limit" value="Enforce alert limit&lt;br&gt;(3 per 24 h)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="440" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="match" value="Match donors" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="590" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="verify" value="Verify hospital" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="920" y="90" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="viewall" value="View donors, hospitals&lt;br&gt;and requests" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="920" y="170" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="rules" value="Configure rules&lt;br&gt;(age, interval, limit)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="920" y="250" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="sim" value="Run strategy&lt;br&gt;simulation" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="920" y="330" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="compat" value="Check blood-group&lt;br&gt;compatibility" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="920" y="500" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="elig" value="Check donor&lt;br&gt;eligibility" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="920" y="590" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="rank" value="Rank by distance" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="920" y="680" width="220" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="donor" target="registerdonor">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="donor" target="availability">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="donor" target="receive">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="donor" target="accept">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="hospital" target="reghosp">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="hospital" target="post">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="hospital" target="viewmatch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="hospital" target="complete">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="admin" target="verify">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="admin" target="viewall">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="admin" target="rules">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endArrow=none;" edge="1" parent="1" source="admin" target="sim">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="&lt;&lt;extend&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="escalate" target="send">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" value="&lt;&lt;include&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="send" target="limit">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" value="&lt;&lt;include&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="sim" target="send">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e16" value="&lt;&lt;include&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="reghosp" target="send">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e17" value="&lt;&lt;include&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="post" target="match">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" value="&lt;&lt;include&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="match" target="compat">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" value="&lt;&lt;include&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="match" target="elig">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" value="&lt;&lt;include&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=open;" edge="1" parent="1" source="match" target="rank">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
