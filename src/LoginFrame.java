@@ -134,7 +134,7 @@ public class LoginFrame extends JFrame {
 
     static void styleButton(JButton b) {
         b.setBackground(new Color(132, 12, 35));
-        b.setForeground(Color.WHITE);
+        b.setForeground(Color.RED);
         b.setFocusPainted(false);
         b.setFont(new Font("Arial", Font.BOLD, 13));
     }
