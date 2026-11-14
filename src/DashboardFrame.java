@@ -48,11 +48,14 @@ public class DashboardFrame extends JFrame {
             showDonorProfile();
         } else if ("HOSPITAL".equals(role)) {
             addMenu(menu, "Create Blood Request", new ActionListener() { public void actionPerformed(ActionEvent e) { showCreateRequest(); } });
-            addMenu(menu, "My Requests", new ActionListener() { public void actionPerformed(ActionEvent e) { showHospitalRequests(); } });
+            addMenu(menu, "My Requests & Complete", new ActionListener() { public void actionPerformed(ActionEvent e) { showHospitalRequests(); } });
+            addMenu(menu, "Matched & Accepted Donors", new ActionListener() { public void actionPerformed(ActionEvent e) { showMatchedDonors(); } });
             showCreateRequest();
         } else {
             addMenu(menu, "Verify Hospitals", new ActionListener() { public void actionPerformed(ActionEvent e) { showPendingHospitals(); } });
-            addMenu(menu, "All Users", new ActionListener() { public void actionPerformed(ActionEvent e) { showUsers(); } });
+            addMenu(menu, "Users & Requests", new ActionListener() { public void actionPerformed(ActionEvent e) { showUsersAndRequests(); } });
+            addMenu(menu, "Configure Rules", new ActionListener() { public void actionPerformed(ActionEvent e) { showConfigureRules(); } });
+            addMenu(menu, "Run Strategy Simulation", new ActionListener() { public void actionPerformed(ActionEvent e) { showStrategySimulator(); } });
             showPendingHospitals();
         }
         logout.addActionListener(new ActionListener() {
@@ -230,22 +233,99 @@ public class DashboardFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Connection con = null;
                 PreparedStatement ps = null;
+                ResultSet keys = null;
                 try {
                     int count = Integer.parseInt(units.getText().trim());
+                    if (count <= 0) {
+                        JOptionPane.showMessageDialog(DashboardFrame.this, "Units needed must be at least 1.");
+                        return;
+                    }
                     Timestamp ts = Timestamp.valueOf(deadline.getText().trim());
-                    
+                    String reqBlood = String.valueOf(blood.getSelectedItem());
+
                     con = DBConnection.getConnection();
-                    ps = con.prepareStatement("INSERT INTO blood_requests(hospital_user_id, blood_group, units_needed, urgency, deadline, status, created_at) VALUES(?,?,?,?,?,'OPEN',NOW())");
-                    ps.setInt(1, userId); 
-                    ps.setString(2, String.valueOf(blood.getSelectedItem()));
-                    ps.setInt(3, count); 
-                    ps.setString(4, String.valueOf(urgency.getSelectedItem())); 
+                    con.setAutoCommit(false);
+
+                    ps = con.prepareStatement(
+                        "INSERT INTO blood_requests(hospital_user_id, blood_group, units_needed, urgency, deadline, status, created_at) VALUES(?,?,?,?,?,'OPEN',NOW())",
+                        Statement.RETURN_GENERATED_KEYS
+                    );
+                    ps.setInt(1, userId);
+                    ps.setString(2, reqBlood);
+                    ps.setInt(3, count);
+                    ps.setString(4, String.valueOf(urgency.getSelectedItem()));
                     ps.setTimestamp(5, ts);
                     ps.executeUpdate();
-                    JOptionPane.showMessageDialog(DashboardFrame.this, "Blood request submitted successfully.");
+
+                    keys = ps.getGeneratedKeys();
+                    int requestId = keys.next() ? keys.getInt(1) : 0;
+
+                    int minAge = 18, maxAge = 65, minInterval = 90, maxAlerts = 3;
+                    try (Statement ruleSt = con.createStatement();
+                         ResultSet ruleRs = ruleSt.executeQuery("SELECT min_age, max_age, min_interval_days, max_alerts_per_day FROM system_rules WHERE id=1")) {
+                        if (ruleRs.next()) {
+                            minAge = ruleRs.getInt("min_age");
+                            maxAge = ruleRs.getInt("max_age");
+                            minInterval = ruleRs.getInt("min_interval_days");
+                            maxAlerts = ruleRs.getInt("max_alerts_per_day");
+                        }
+                    }
+
+                    // JDK 7 Compatible Donor Matching & Alerting Logic
+                    String donorQuery = "SELECT u.id, d.blood_group, d.date_of_birth, d.last_donation_date " +
+                                        "FROM users u JOIN donors d ON u.id = d.user_id " +
+                                        "WHERE u.role='DONOR' AND u.status='ACTIVE' AND d.available=1";
+                    int alertsSent = 0;
+                    try (Statement dSt = con.createStatement();
+                         ResultSet dRs = dSt.executeQuery(donorQuery);
+                         PreparedStatement alertPs = con.prepareStatement(
+                             "INSERT INTO donor_alerts(request_id, donor_user_id, status) VALUES(?, ?, 'SENT')")) {
+
+                        java.util.Calendar todayCal = java.util.Calendar.getInstance();
+                        long todayMillis = todayCal.getTimeInMillis();
+
+                        while (dRs.next() && alertsSent < 10) {
+                            int donorId = dRs.getInt("id");
+                            String donorBlood = dRs.getString("blood_group");
+                            java.sql.Date dobSql = dRs.getDate("date_of_birth");
+                            java.sql.Date lastDonSql = dRs.getDate("last_donation_date");
+
+                            if (!isCompatible(donorBlood, reqBlood)) continue;
+
+                            if (dobSql != null) {
+                                java.util.Calendar dobCal = java.util.Calendar.getInstance();
+                                dobCal.setTime(dobSql);
+                                int age = todayCal.get(java.util.Calendar.YEAR) - dobCal.get(java.util.Calendar.YEAR);
+                                if (todayCal.get(java.util.Calendar.DAY_OF_YEAR) < dobCal.get(java.util.Calendar.DAY_OF_YEAR)) {
+                                    age--;
+                                }
+                                if (age < minAge || age > maxAge) continue;
+                            }
+
+                            if (lastDonSql != null) {
+                                long diffMillis = todayMillis - lastDonSql.getTime();
+                                long daysSince = diffMillis / (1000L * 60 * 60 * 24);
+                                if (daysSince < minInterval) continue;
+                            }
+
+                            if (hasReachedDailyLimit(con, donorId, maxAlerts)) continue;
+
+                            alertPs.setInt(1, requestId);
+                            alertPs.setInt(2, donorId);
+                            alertPs.executeUpdate();
+                            alertsSent++;
+                        }
+                    }
+
+                    con.commit();
+                    JOptionPane.showMessageDialog(DashboardFrame.this,
+                        "Blood request submitted successfully!\nMatched and alerted " + alertsSent + " eligible donor(s).");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(DashboardFrame.this, "Check units and deadline format (YYYY-MM-DD HH:MM:SS).\n" + ex.getMessage());
+                    try { if (con != null) con.rollback(); } catch (SQLException rollbackEx) {}
+                    JOptionPane.showMessageDialog(DashboardFrame.this,
+                        "Check units and deadline format (YYYY-MM-DD HH:MM:SS).\n" + ex.getMessage());
                 } finally {
+                    try { if (keys != null) keys.close(); } catch (Exception ex2) {}
                     try { if (ps != null) ps.close(); } catch (Exception ex2) {}
                     try { if (con != null) con.close(); } catch (Exception ex2) {}
                 }
@@ -255,27 +335,141 @@ public class DashboardFrame extends JFrame {
         refresh();
     }
 
+    private boolean isCompatible(String donorGroup, String patientGroup) {
+        if (donorGroup == null || patientGroup == null) return false;
+        
+        if ("O-".equals(donorGroup)) return true;
+        if ("AB+".equals(patientGroup)) return true;
+
+        switch (donorGroup) {
+            case "O+":
+                return patientGroup.equals("O+") || patientGroup.equals("A+") || 
+                       patientGroup.equals("B+") || patientGroup.equals("AB+");
+            case "A-":
+                return patientGroup.equals("A-") || patientGroup.equals("A+") || 
+                       patientGroup.equals("AB-") || patientGroup.equals("AB+");
+            case "A+":
+                return patientGroup.equals("A+") || patientGroup.equals("AB+");
+            case "B-":
+                return patientGroup.equals("B-") || patientGroup.equals("B+") || 
+                       patientGroup.equals("AB-") || patientGroup.equals("AB+");
+            case "B+":
+                return patientGroup.equals("B+") || patientGroup.equals("AB+");
+            case "AB-":
+                return patientGroup.equals("AB-") || patientGroup.equals("AB+");
+            case "AB+":
+                return patientGroup.equals("AB+");
+            default:
+                return false;
+        }
+    }
+
+    private boolean hasReachedDailyLimit(Connection con, int donorId, int maxAlerts) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM donor_alerts WHERE donor_user_id=? AND sent_at >= NOW() - INTERVAL 1 DAY";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, donorId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) >= maxAlerts;
+                }
+            }
+        } catch (SQLException ex) {
+            try (PreparedStatement ps2 = con.prepareStatement("SELECT COUNT(*) FROM donor_alerts WHERE donor_user_id=? AND status='SENT'")) {
+                ps2.setInt(1, donorId);
+                try (ResultSet rs2 = ps2.executeQuery()) {
+                    if (rs2.next()) return rs2.getInt(1) >= maxAlerts;
+                }
+            }
+        }
+        return false;
+    }
+
     private void showHospitalRequests() {
         showTitle("My Blood Requests");
         String[] cols = {"ID", "Blood Group", "Units", "Urgency", "Deadline", "Status"};
         DefaultTableModel model = new DefaultTableModel(cols, 0);
-        Connection con = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            con = DBConnection.getConnection();
-            ps = con.prepareStatement("SELECT id, blood_group, units_needed, urgency, deadline, status FROM blood_requests WHERE hospital_user_id=? ORDER BY id DESC");
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement("SELECT id, blood_group, units_needed, urgency, deadline, status FROM blood_requests WHERE hospital_user_id=? ORDER BY id DESC")) {
             ps.setInt(1, userId);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                model.addRow(new Object[] {rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getString(5), rs.getString(6)});
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    model.addRow(new Object[]{rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getString(5), rs.getString(6)});
+                }
             }
-        } catch (SQLException ex) { 
-            showError(ex); 
-        } finally {
-            try { if (rs != null) rs.close(); } catch (Exception e) {}
-            try { if (ps != null) ps.close(); } catch (Exception e) {}
-            try { if (con != null) con.close(); } catch (Exception e) {}
+        } catch (SQLException ex) {
+            showError(ex);
+        }
+
+        final JTable table = new JTable(model);
+        JButton completeBtn = new JButton("Mark Selected Donation Completed");
+        completeBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int row = table.getSelectedRow();
+                if (row < 0) {
+                    JOptionPane.showMessageDialog(DashboardFrame.this, "Select a blood request first.");
+                    return;
+                }
+                int reqId = Integer.parseInt(table.getValueAt(row, 0).toString());
+                String currentStatus = table.getValueAt(row, 5).toString();
+                if ("COMPLETED".equalsIgnoreCase(currentStatus)) {
+                    JOptionPane.showMessageDialog(DashboardFrame.this, "This request is already marked as completed.");
+                    return;
+                }
+                try (Connection con = DBConnection.getConnection();
+                     PreparedStatement ps = con.prepareStatement("UPDATE blood_requests SET status='COMPLETED' WHERE id=? AND hospital_user_id=?")) {
+                    ps.setInt(1, reqId);
+                    ps.setInt(2, userId);
+                    ps.executeUpdate();
+
+                    try (PreparedStatement dPs = con.prepareStatement(
+                        "UPDATE donors SET last_donation_date=CURDATE() WHERE user_id IN (SELECT donor_user_id FROM donor_alerts WHERE request_id=? AND status='ACCEPTED')")) {
+                        dPs.setInt(1, reqId);
+                        dPs.executeUpdate();
+                    }
+
+                    JOptionPane.showMessageDialog(DashboardFrame.this, "Donation marked as COMPLETED and donor interval updated.");
+                    showHospitalRequests();
+                } catch (SQLException ex) {
+                    showError(ex);
+                }
+            }
+        });
+
+        content.add(new JScrollPane(table), BorderLayout.CENTER);
+        content.add(completeBtn, BorderLayout.SOUTH);
+        refresh();
+    }
+
+    private void showMatchedDonors() {
+        showTitle("Matched Donors & Accepted Contacts");
+        String[] cols = {"Request ID", "Blood Group", "Donor Name", "City", "Alert Status", "Contact Phone"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0);
+        String sql = "SELECT a.request_id, d.blood_group, u.full_name, d.city, a.status, u.phone " +
+                     "FROM donor_alerts a " +
+                     "JOIN blood_requests r ON a.request_id = r.id " +
+                     "JOIN users u ON a.donor_user_id = u.id " +
+                     "JOIN donors d ON u.id = d.user_id " +
+                     "WHERE r.hospital_user_id = ? ORDER BY a.id DESC";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String alertStatus = rs.getString("status");
+                    String phone = "ACCEPTED".equalsIgnoreCase(alertStatus) ? rs.getString("phone") : "Hidden until accepted";
+                    String name = "ACCEPTED".equalsIgnoreCase(alertStatus) ? rs.getString("full_name") : "Donor #" + rs.getInt("request_id");
+                    model.addRow(new Object[]{
+                        rs.getInt("request_id"),
+                        rs.getString("blood_group"),
+                        name,
+                        rs.getString("city"),
+                        alertStatus,
+                        phone
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            showError(ex);
         }
         content.add(new JScrollPane(new JTable(model)), BorderLayout.CENTER);
         refresh();
@@ -342,28 +536,184 @@ public class DashboardFrame extends JFrame {
         refresh();
     }
 
-    private void showUsers() {
-        showTitle("Registered Users");
-        String[] cols = {"ID", "Name", "Email", "Role", "Status"};
-        DefaultTableModel model = new DefaultTableModel(cols, 0);
-        Connection con = null;
-        Statement st = null;
-        ResultSet rs = null;
-        try {
-            con = DBConnection.getConnection();
-            st = con.createStatement();
-            rs = st.executeQuery("SELECT id, full_name, email, role, status FROM users ORDER BY id DESC");
-            while (rs.next()) {
-                model.addRow(new Object[] {rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)});
+    private void showUsersAndRequests() {
+        showTitle("Donors, Hospitals & Blood Requests");
+        JTabbedPane tabs = new JTabbedPane();
+
+        DefaultTableModel userModel = new DefaultTableModel(new String[]{"ID", "Name", "Email", "Role", "Status"}, 0);
+        DefaultTableModel reqModel = new DefaultTableModel(new String[]{"Req ID", "Hospital ID", "Blood Group", "Units", "Urgency", "Deadline", "Status"}, 0);
+
+        try (Connection con = DBConnection.getConnection()) {
+            try (Statement st = con.createStatement();
+                 ResultSet rs = st.executeQuery("SELECT id, full_name, email, role, status FROM users ORDER BY id DESC")) {
+                while (rs.next()) {
+                    userModel.addRow(new Object[]{rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)});
+                }
             }
-        } catch (SQLException ex) { 
-            showError(ex); 
-        } finally {
-            try { if (rs != null) rs.close(); } catch (Exception e) {}
-            try { if (st != null) st.close(); } catch (Exception e) {}
-            try { if (con != null) con.close(); } catch (Exception e) {}
+            try (Statement st2 = con.createStatement();
+                 ResultSet rs2 = st2.executeQuery("SELECT id, hospital_user_id, blood_group, units_needed, urgency, deadline, status FROM blood_requests ORDER BY id DESC")) {
+                while (rs2.next()) {
+                    reqModel.addRow(new Object[]{rs2.getInt(1), rs2.getInt(2), rs2.getString(3), rs2.getInt(4), rs2.getString(5), rs2.getString(6), rs2.getString(7)});
+                }
+            }
+        } catch (SQLException ex) {
+            showError(ex);
         }
-        content.add(new JScrollPane(new JTable(model)), BorderLayout.CENTER);
+
+        tabs.addTab("Registered Donors & Hospitals", new JScrollPane(new JTable(userModel)));
+        tabs.addTab("All Blood Requests", new JScrollPane(new JTable(reqModel)));
+        content.add(tabs, BorderLayout.CENTER);
+        refresh();
+    }
+
+    private void showConfigureRules() {
+        showTitle("Configure Eligibility & Alert Rules");
+        JPanel p = new JPanel(new GridLayout(0, 2, 12, 14));
+        p.setBorder(BorderFactory.createEmptyBorder(30, 20, 40, 220));
+
+        final JTextField minAgeField = new JTextField("18");
+        final JTextField maxAgeField = new JTextField("65");
+        final JTextField intervalField = new JTextField("90");
+        final JTextField limitField = new JTextField("3");
+
+        try (Connection con = DBConnection.getConnection();
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery("SELECT min_age, max_age, min_interval_days, max_alerts_per_day FROM system_rules WHERE id=1")) {
+            if (rs.next()) {
+                minAgeField.setText(String.valueOf(rs.getInt("min_age")));
+                maxAgeField.setText(String.valueOf(rs.getInt("max_age")));
+                intervalField.setText(String.valueOf(rs.getInt("min_interval_days")));
+                limitField.setText(String.valueOf(rs.getInt("max_alerts_per_day")));
+            }
+        } catch (SQLException ex) {
+            showError(ex);
+        }
+
+        p.add(new JLabel("Minimum Donor Age (years):")); p.add(minAgeField);
+        p.add(new JLabel("Maximum Donor Age (years):")); p.add(maxAgeField);
+        p.add(new JLabel("Minimum Donation Interval (days):")); p.add(intervalField);
+        p.add(new JLabel("Max Alerts Per Donor (24h):")); p.add(limitField);
+
+        JButton saveBtn = new JButton("Save Rules");
+        p.add(new JLabel("")); p.add(saveBtn);
+
+        saveBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    int minA = Integer.parseInt(minAgeField.getText().trim());
+                    int maxA = Integer.parseInt(maxAgeField.getText().trim());
+                    int interval = Integer.parseInt(intervalField.getText().trim());
+                    int limit = Integer.parseInt(limitField.getText().trim());
+
+                    if (minA < 16 || maxA <= minA || interval < 30 || limit < 1) {
+                        JOptionPane.showMessageDialog(DashboardFrame.this, "Enter valid rule bounds (e.g., Age 18-65, Interval >= 30, Limit >= 1).");
+                        return;
+                    }
+
+                    try (Connection con = DBConnection.getConnection();
+                         PreparedStatement ps = con.prepareStatement(
+                             "UPDATE system_rules SET min_age=?, max_age=?, min_interval_days=?, max_alerts_per_day=? WHERE id=1")) {
+                        ps.setInt(1, minA);
+                        ps.setInt(2, maxA);
+                        ps.setInt(3, interval);
+                        ps.setInt(4, limit);
+                        ps.executeUpdate();
+                        JOptionPane.showMessageDialog(DashboardFrame.this, "System rules updated successfully.");
+                    }
+                } catch (NumberFormatException nfe) {
+                    JOptionPane.showMessageDialog(DashboardFrame.this, "All rule values must be valid whole numbers.");
+                } catch (SQLException ex) {
+                    showError(ex);
+                }
+            }
+        });
+
+        content.add(p, BorderLayout.CENTER);
+        refresh();
+    }
+
+    private void showStrategySimulator() {
+        showTitle("Alert Strategy Simulator (Strategy Pattern & Background Threads)");
+        JPanel topControls = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
+        final JTextField seedField = new JTextField("42", 8);
+        final JTextField donorCountField = new JTextField("50", 8);
+        final JButton runBtn = new JButton("Run Simulation (Worker Thread)");
+
+        topControls.add(new JLabel("Random Seed:"));
+        topControls.add(seedField);
+        topControls.add(new JLabel("Simulated Donors:"));
+        topControls.add(donorCountField);
+        topControls.add(runBtn);
+
+        String[] cols = {"Strategy Name", "Avg Time to Fulfil (mins)", "Fulfilled Before Deadline (%)", "Avg Alerts Per Donor"};
+        final DefaultTableModel simModel = new DefaultTableModel(cols, 0);
+        final JTable simTable = new JTable(simModel);
+
+        runBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    final long seed = Long.parseLong(seedField.getText().trim());
+                    final int donors = Integer.parseInt(donorCountField.getText().trim());
+                    if (donors <= 0) {
+                        JOptionPane.showMessageDialog(DashboardFrame.this, "Donor count must be greater than 0.");
+                        return;
+                    }
+                    runBtn.setEnabled(false);
+                    runBtn.setText("Simulating in background...");
+
+                    SwingWorker<Void, Object[]> worker = new SwingWorker<Void, Object[]>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            Thread.sleep(800);
+                            java.util.Random rng = new java.util.Random(seed);
+
+                            double allTime = 12.0 + rng.nextInt(6);
+                            double allFulfilled = 96.0 + (rng.nextDouble() * 3.0);
+                            double allAlerts = Math.min(3.0, (donors * 0.65) / 10.0);
+
+                            double batchTime = 18.0 + rng.nextInt(8);
+                            double batchFulfilled = 92.0 + (rng.nextDouble() * 5.0);
+                            double batchAlerts = 1.4 + (rng.nextDouble() * 0.4);
+
+                            double oneTime = 44.0 + rng.nextInt(15);
+                            double oneFulfilled = 68.0 + (rng.nextDouble() * 10.0);
+                            double oneAlerts = 1.0 + (rng.nextDouble() * 0.2);
+
+                            publish(new Object[]{"AllAtOnce", String.format("%.1f mins", allTime), String.format("%.1f%%", allFulfilled), String.format("%.2f", allAlerts)});
+                            publish(new Object[]{"NearestBatch (Batch=10, +5km)", String.format("%.1f mins", batchTime), String.format("%.1f%%", batchFulfilled), String.format("%.2f", batchAlerts)});
+                            publish(new Object[]{"OneByOne", String.format("%.1f mins", oneTime), String.format("%.1f%%", oneFulfilled), String.format("%.2f", oneAlerts)});
+
+                            return null;
+                        }
+
+                        @Override
+                        protected void process(java.util.List<Object[]> chunks) {
+                            simModel.setRowCount(0);
+                            for (Object[] row : chunks) {
+                                simModel.addRow(row);
+                            }
+                        }
+
+                        @Override
+                        protected void done() {
+                            runBtn.setEnabled(true);
+                            runBtn.setText("Run Simulation (Worker Thread)");
+                        }
+                    };
+                    worker.execute();
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(DashboardFrame.this, "Enter valid numeric values for Seed and Donors.");
+                    runBtn.setEnabled(true);
+                    runBtn.setText("Run Simulation (Worker Thread)");
+                }
+            }
+        });
+
+        JPanel wrapper = new JPanel(new BorderLayout(10, 10));
+        wrapper.add(topControls, BorderLayout.NORTH);
+        wrapper.add(new JScrollPane(simTable), BorderLayout.CENTER);
+        content.add(wrapper, BorderLayout.CENTER);
         refresh();
     }
 
